@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="50 Dias">
+<title>50 Dias — Casamento</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+
+:root{
+  --bg:#0e0d0c;
+  --bg2:#161513;
+  --bg3:#1e1c19;
+  --bg4:#252320;
+  --border:rgba(255,255,255,0.07);
+  --border2:rgba(255,255,255,0.13);
+  --text:#f0ece4;
+  --text2:#9a9488;
+  --text3:#5c5850;
+  --gold:#c9a96e;
+  --gold2:#e8c98a;
+  --gold-dim:rgba(201,169,110,0.15);
+  --gold-dim2:rgba(201,169,110,0.08);
+  --pink:#c4728a;
+  --pink-dim:rgba(196,114,138,0.15);
+  --green:#6aab82;
+  --green-dim:rgba(106,171,130,0.15);
+  --blue:#6a8faa;
+  --blue-dim:rgba(106,143,170,0.15);
+  --amber:#c49a5a;
+  --amber-dim:rgba(196,154,90,0.15);
+  --red:#b56464;
+  --red-dim:rgba(181,100,100,0.15);
+  --purple:#a87bcb;
+  --purple-dim:rgba(168,123,203,0.15);
+  --radius:10px;
+  --radius-sm:6px;
+  --bottom-bar:64px;
+}
+
+html,body{height:100%;overflow:hidden;}
+
+body{
+  font-family:'DM Sans',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  font-size:14px;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ── LAYOUT ── */
+.app{display:flex;height:100vh;overflow:hidden;}
+
+/* ── SIDEBAR (desktop) ── */
+.sidebar{
+  width:220px;flex-shrink:0;
+  background:var(--bg2);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  padding:28px 0 20px;
+  overflow-y:auto;
+}
+.brand{padding:0 20px 24px;border-bottom:1px solid var(--border);margin-bottom:16px;}
+.brand-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;color:var(--gold2);letter-spacing:.02em;line-height:1.2;}
+.brand-sub{font-size:11px;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-top:3px;}
+
+.nav-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 20px;cursor:pointer;
+  color:var(--text2);font-size:13px;
+  border-left:2px solid transparent;
+  transition:all .2s;user-select:none;
+}
+.nav-item:hover{color:var(--text);background:var(--bg3);}
+.nav-item.active{color:var(--gold2);border-left-color:var(--gold);background:var(--gold-dim2);}
+.nav-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0;}
+
+.sidebar-footer{margin-top:auto;padding:16px 20px 0;border-top:1px solid var(--border);}
+.day-counter{font-family:'Cormorant Garamond',serif;font-size:42px;font-weight:300;color:var(--gold);line-height:1;}
+.day-counter-lbl{font-size:11px;color:var(--text3);margin-top:2px;}
+.overall-prog{margin-top:14px;}
+.prog-track{height:3px;background:var(--bg4);border-radius:2px;overflow:hidden;margin-top:6px;}
+.prog-fill{height:100%;background:var(--gold);border-radius:2px;transition:width .4s;}
+.prog-label{display:flex;justify-content:space-between;font-size:10px;color:var(--text3);}
+
+/* ── MAIN ── */
+.main{flex:1;overflow-y:auto;padding:28px 32px;padding-bottom:calc(var(--bottom-bar) + 16px);}
+
+.page{display:none;}
+.page.active{display:block;animation:fadeIn .2s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+
+.page-header{margin-bottom:24px;}
+.page-title{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:300;color:var(--gold2);letter-spacing:.01em;line-height:1.2;}
+.page-sub{font-size:12px;color:var(--text3);margin-top:3px;}
+
+/* ── BOTTOM NAV (mobile) ── */
+.bottom-nav{
+  display:none;
+  position:fixed;bottom:0;left:0;right:0;
+  height:var(--bottom-bar);
+  background:var(--bg2);
+  border-top:1px solid var(--border);
+  z-index:100;
+}
+.bottom-nav-inner{display:flex;height:100%;}
+.bn-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;cursor:pointer;color:var(--text3);
+  transition:color .2s;user-select:none;
+  -webkit-tap-highlight-color:transparent;
+}
+.bn-item.active{color:var(--gold);}
+.bn-icon{font-size:20px;line-height:1;}
+.bn-label{font-size:9px;letter-spacing:.04em;text-transform:uppercase;}
+
+/* ── CARDS ── */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;margin-bottom:12px;}
+.card-title{font-size:10px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:12px;}
+
+/* ── METRICS ── */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px;}
+.metric{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;}
+.metric-val{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:300;line-height:1;}
+.metric-lbl{font-size:10px;color:var(--text3);margin-top:3px;}
+.c-gold{color:var(--gold);}
+.c-pink{color:var(--pink);}
+.c-green{color:var(--green);}
+.c-amber{color:var(--amber);}
+
+/* ── DASH GRID ── */
+.dash-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:14px;}
+
+/* ── BLOCKS ── */
+.blocks-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.block-item{
+  background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);
+  padding:10px 12px;cursor:pointer;transition:all .2s;
+  display:flex;align-items:flex-start;gap:9px;
+  -webkit-tap-highlight-color:transparent;
+}
+.block-item:active{opacity:.7;}
+.block-item.done{opacity:.45;}
+.block-item.done .block-title{text-decoration:line-through;color:var(--text3);}
+.block-check{
+  width:15px;height:15px;border-radius:3px;border:1px solid var(--border2);
+  flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;
+  font-size:8px;transition:all .2s;
+}
+.block-item.done .block-check{background:var(--gold);border-color:var(--gold);color:#000;}
+.block-hour{font-size:9px;color:var(--text3);margin-bottom:1px;}
+.block-title{font-size:12px;color:var(--text);}
+.block-tag{display:inline-block;font-size:9px;padding:1px 6px;border-radius:20px;margin-top:3px;}
+.tag-work{background:var(--blue-dim);color:var(--blue);}
+.tag-health{background:var(--green-dim);color:var(--green);}
+.tag-wedding{background:var(--pink-dim);color:var(--pink);}
+.tag-personal{background:var(--amber-dim);color:var(--amber);}
+
+/* ── PRIOS ── */
+.prio-list{display:flex;flex-direction:column;gap:4px;}
+.prio-item{
+  display:flex;align-items:center;gap:9px;
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:10px 12px;
+  cursor:pointer;transition:all .2s;
+  -webkit-tap-highlight-color:transparent;
+}
+.prio-item:active{opacity:.7;}
+.prio-item.done .prio-text{text-decoration:line-through;color:var(--text3);}
+.prio-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.dot-red{background:var(--red);}
+.dot-amber{background:var(--amber);}
+.dot-green{background:var(--green);}
+.prio-text{flex:1;font-size:13px;color:var(--text);}
+.prio-area{font-size:10px;color:var(--text3);}
+
+/* ── CHECKLIST ── */
+.week-group{margin-bottom:16px;}
+.week-hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 0;border-bottom:1px solid var(--border);
+  cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;
+}
+.week-name{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:400;color:var(--text);transition:color .2s;}
+.week-hdr:active .week-name{color:var(--gold2);}
+.week-badge{font-size:10px;padding:2px 8px;border-radius:20px;display:flex;align-items:center;gap:5px;}
+.badge-urgent{background:var(--pink-dim);color:var(--pink);}
+.badge-mid{background:var(--amber-dim);color:var(--amber);}
+.badge-ok{background:var(--green-dim);color:var(--green);}
+.week-prog{height:2px;background:var(--bg4);border-radius:1px;margin-top:6px;overflow:hidden;}
+.week-prog-fill{height:100%;background:var(--pink);border-radius:1px;transition:width .3s;}
+.week-items{padding-top:2px;}
+.week-group.collapsed .week-items{display:none;}
+.chk-item{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 2px;border-bottom:1px solid var(--border);
+  cursor:pointer;transition:all .15s;
+  -webkit-tap-highlight-color:transparent;
+}
+.chk-item:last-child{border-bottom:none;}
+.chk-item:active{opacity:.7;}
+.chk-item.done .chk-text{text-decoration:line-through;color:var(--text3);}
+.chk-box{
+  width:16px;height:16px;border-radius:4px;border:1px solid var(--border2);
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  font-size:9px;transition:all .2s;
+}
+.chk-item.done .chk-box{background:var(--pink);border-color:var(--pink);color:#fff;}
+.chk-text{flex:1;font-size:13px;color:var(--text);}
+.chk-cat{font-size:9px;padding:1px 6px;border-radius:20px;flex-shrink:0;}
+.cat-doc{background:var(--blue-dim);color:var(--blue);}
+.cat-forn{background:var(--amber-dim);color:var(--amber);}
+.cat-pes{background:var(--pink-dim);color:var(--pink);}
+.cat-log{background:var(--green-dim);color:var(--green);}
+.cat-vis{background:var(--purple-dim);color:var(--purple);}
+
+/* ── TREINOS ── */
+.t-tabs{display:flex;gap:5px;margin-bottom:16px;flex-wrap:wrap;}
+.ttab{
+  padding:5px 13px;border-radius:var(--radius-sm);font-size:11px;
+  cursor:pointer;border:1px solid var(--border);background:var(--bg3);color:var(--text2);
+  transition:all .2s;-webkit-tap-highlight-color:transparent;
+}
+.ttab.active{background:var(--gold-dim);color:var(--gold2);border-color:var(--gold);}
+.tview{display:none;}
+.tview.active{display:block;}
+.day-row{display:flex;gap:9px;align-items:stretch;margin-bottom:7px;}
+.day-lbl{width:32px;flex-shrink:0;font-size:9px;font-weight:500;color:var(--text3);padding-top:11px;text-transform:uppercase;letter-spacing:.05em;}
+.day-card{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:9px 12px;}
+.day-type{font-size:11px;font-weight:500;margin-bottom:1px;}
+.day-desc{font-size:11px;color:var(--text2);}
+.t-musculo{color:var(--blue);}
+.t-cardio{color:var(--green);}
+.t-rest{color:var(--text3);}
+.t-hiit{color:var(--red);}
+.t-flex{color:var(--purple);}
+.phase-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:13px 15px;margin-bottom:8px;}
+.phase-hdr{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px;gap:8px;}
+.phase-name{font-size:13px;font-weight:500;color:var(--gold2);}
+.phase-days{font-size:10px;color:var(--text3);flex-shrink:0;}
+.phase-desc{font-size:12px;color:var(--text2);line-height:1.65;}
+.tip-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:11px 13px;margin-bottom:7px;}
+.tip-title{font-size:13px;font-weight:500;color:var(--text);margin-bottom:2px;}
+.tip-desc{font-size:12px;color:var(--text2);line-height:1.6;}
+
+/* ── CAPITAL ── */
+.cap-item{
+  display:flex;align-items:flex-start;gap:9px;
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:10px 13px;margin-bottom:6px;
+  cursor:pointer;transition:all .2s;-webkit-tap-highlight-color:transparent;
+}
+.cap-item:active{opacity:.7;}
+.cap-item.done .cap-text{text-decoration:line-through;color:var(--text3);}
+.cap-text{flex:1;font-size:13px;color:var(--text);}
+.cap-badge{font-size:9px;padding:2px 7px;border-radius:20px;flex-shrink:0;margin-top:2px;}
+
+/* ── PILLS ── */
+.pills{display:flex;flex-wrap:wrap;gap:5px;}
+.pill{font-size:11px;padding:4px 10px;border-radius:20px;}
+.pill-blue{background:var(--blue-dim);color:var(--blue);}
+.pill-green{background:var(--green-dim);color:var(--green);}
+.pill-amber{background:var(--amber-dim);color:var(--amber);}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:3px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px;}
+
+/* ── RESPONSIVE ── */
+@media(max-width:700px){
+  .sidebar{display:none;}
+  .bottom-nav{display:flex;}
+  .main{padding:20px 16px;padding-bottom:calc(var(--bottom-bar) + 20px);}
+  .metrics{grid-template-columns:repeat(2,1fr);}
+  .dash-grid{grid-template-columns:1fr;}
+  .blocks-grid{grid-template-columns:1fr;}
+}
+@media(min-width:701px){
+  .bottom-nav{display:none;}
+  .main{padding-bottom:32px;}
+}
+@media(max-width:860px) and (min-width:701px){
+  .sidebar{width:180px;}
+  .metrics{grid-template-columns:repeat(2,1fr);}
+  .dash-grid{grid-template-columns:1fr;}
+  .blocks-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- SIDEBAR (desktop) -->
+<nav class="sidebar">
+  <div class="brand">
+    <div class="brand-title">50 Dias</div>
+    <div class="brand-sub">até o casamento</div>
+  </div>
+  <div class="nav-item active" onclick="go('dash')" id="snav-dash"><span class="nav-icon">⌂</span>Dashboard</div>
+  <div class="nav-item" onclick="go('casamento')" id="snav-casamento"><span class="nav-icon">◇</span>Casamento</div>
+  <div class="nav-item" onclick="go('treinos')" id="snav-treinos"><span class="nav-icon">◉</span>Saúde & Treinos</div>
+  <div class="nav-item" onclick="go('capital')" id="snav-capital"><span class="nav-icon">◈</span>Capital</div>
+  <div class="sidebar-footer">
+    <div class="day-counter" id="side-days">50</div>
+    <div class="day-counter-lbl">dias restantes</div>
+    <div class="overall-prog">
+      <div class="prog-label"><span>progresso geral</span><span id="side-pct">0%</span></div>
+      <div class="prog-track"><div class="prog-fill" id="side-fill" style="width:0%"></div></div>
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- DASHBOARD -->
+  <div class="page active" id="page-dash">
+    <div class="page-header">
+      <div class="page-title">Bom dia, noivo.</div>
+      <div class="page-sub" id="dash-date"></div>
+    </div>
+    <div class="metrics">
+      <div class="metric"><div class="metric-val c-gold" id="m-dias">50</div><div class="metric-lbl">dias para o casamento</div></div>
+      <div class="metric"><div class="metric-val c-pink" id="m-wed">0</div><div class="metric-lbl">casamento feitos</div></div>
+      <div class="metric"><div class="metric-val c-green" id="m-treino">0</div><div class="metric-lbl">treino hoje</div></div>
+      <div class="metric"><div class="metric-val c-amber" id="m-cap">0</div><div class="metric-lbl">capital feitos</div></div>
+    </div>
+    <div class="dash-grid">
+      <div class="card"><div class="card-title">Blocos do dia</div><div class="blocks-grid" id="blocks-grid"></div></div>
+      <div class="card"><div class="card-title">Prioridades de hoje</div><div class="prio-list" id="prio-list"></div></div>
+    </div>
+  </div>
+
+  <!-- CASAMENTO -->
+  <div class="page" id="page-casamento">
+    <div class="page-header">
+      <div class="page-title">Checklist do casamento</div>
+      <div class="page-sub">40 itens organizados por semana</div>
+    </div>
+    <div class="metrics" style="grid-template-columns:repeat(3,1fr);">
+      <div class="metric"><div class="metric-val c-pink" id="wed-done">0</div><div class="metric-lbl">concluídos</div></div>
+      <div class="metric"><div class="metric-val c-amber" id="wed-pend">40</div><div class="metric-lbl">pendentes</div></div>
+      <div class="metric"><div class="metric-val c-gold" id="wed-pct">0%</div><div class="metric-lbl">progresso</div></div>
+    </div>
+    <div id="wed-weeks"></div>
+  </div>
+
+  <!-- TREINOS -->
+  <div class="page" id="page-treinos">
+    <div class="page-header">
+      <div class="page-title">Saúde & Treinos</div>
+      <div class="page-sub">Plano de 50 dias em 4 fases</div>
+    </div>
+    <div class="t-tabs">
+      <div class="ttab active" onclick="switchT('semana')">Semana tipo</div>
+      <div class="ttab" onclick="switchT('fases')">Fases</div>
+      <div class="ttab" onclick="switchT('nutri')">Nutrição</div>
+    </div>
+    <div class="tview active" id="tv-semana">
+      <div class="day-row"><div class="day-lbl">seg</div><div class="day-card"><div class="day-type t-musculo">Musculação — superior</div><div class="day-desc">Peito, ombro, tríceps · 45–55 min</div></div></div>
+      <div class="day-row"><div class="day-lbl">ter</div><div class="day-card"><div class="day-type t-cardio">Cardio moderado</div><div class="day-desc">Corrida ou bike, zona 2 · 30–40 min</div></div></div>
+      <div class="day-row"><div class="day-lbl">qua</div><div class="day-card"><div class="day-type t-musculo">Musculação — inferior</div><div class="day-desc">Pernas e glúteos · 45–55 min</div></div></div>
+      <div class="day-row"><div class="day-lbl">qui</div><div class="day-card"><div class="day-type t-hiit">HIIT ou funcional</div><div class="day-desc">Circuito de alta intensidade · 25–30 min</div></div></div>
+      <div class="day-row"><div class="day-lbl">sex</div><div class="day-card"><div class="day-type t-musculo">Musculação — costas e bíceps</div><div class="day-desc">Puxadas, remadas · 45–55 min</div></div></div>
+      <div class="day-row"><div class="day-lbl">sáb</div><div class="day-card"><div class="day-type t-flex">Mobilidade e alongamento</div><div class="day-desc">Yoga, foam roller ou caminhada · 30 min</div></div></div>
+      <div class="day-row"><div class="day-lbl">dom</div><div class="day-card"><div class="day-type t-rest">Descanso ativo</div><div class="day-desc">Caminhada leve, recuperar</div></div></div>
+      <div class="card" style="margin-top:14px;">
+        <div class="card-title">Horário ideal</div>
+        <div class="pills">
+          <span class="pill pill-blue">05:30 acorda</span>
+          <span class="pill pill-green">05:45 treino</span>
+          <span class="pill pill-green">06:45 encerra</span>
+          <span class="pill pill-amber">07:00 banho + café</span>
+          <span class="pill pill-amber">07:30 leitura</span>
+          <span class="pill pill-blue">08:00 trabalho</span>
+        </div>
+      </div>
+    </div>
+    <div class="tview" id="tv-fases">
+      <div class="phase-card"><div class="phase-hdr"><span class="phase-name">Fase 1 — Base e consistência</span><span class="phase-days">dias 50–36</span></div><div class="phase-desc">Criar o hábito diário. Treinos mais curtos (40 min), intensidade moderada. Objetivo: não faltar. Consistência acima de tudo. Sono e hidratação são prioridade.</div></div>
+      <div class="phase-card"><div class="phase-hdr"><span class="phase-name">Fase 2 — Intensidade e definição</span><span class="phase-days">dias 35–15</span></div><div class="phase-desc">Aumentar carga progressivamente. HIIT 2x por semana. Ajustar alimentação para reduzir sódio e inflamação. Cuidado com estresse — não exagerar nos dias de pressão.</div></div>
+      <div class="phase-card"><div class="phase-hdr"><span class="phase-name">Fase 3 — Manutenção e aparência</span><span class="phase-days">dias 14–4</span></div><div class="phase-desc">Diminuir intensidade, manter frequência. Priorizar sono (8h). Reduzir sódio e alimentos que causam inchaço. Hidratação em dobro. Nada de treino exaustivo na semana do casamento.</div></div>
+      <div class="phase-card"><div class="phase-hdr"><span class="phase-name">Fase 4 — Recuperação pré-evento</span><span class="phase-days">dias 3–1</span></div><div class="phase-desc">Só alongamento leve e caminhada. Dormir cedo. Comer limpo e leve. Nada de mudar rotina de última hora. Confiar no processo.</div></div>
+    </div>
+    <div class="tview" id="tv-nutri">
+      <div style="font-size:10px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:10px;">Nutrição</div>
+      <div class="tip-card"><div class="tip-title">Proteína em cada refeição</div><div class="tip-desc">Meta de 1,6 a 2g/kg de peso. Frango, ovos, atum, whey, iogurte grego. Mantém massa e saciedade.</div></div>
+      <div class="tip-card"><div class="tip-title">Reduzir sódio nas últimas 2 semanas</div><div class="tip-desc">Evitar embutidos, salgadinhos, molhos prontos. Diminui retenção e inchaço visível no dia do casamento.</div></div>
+      <div class="tip-card"><div class="tip-title">Hidratação mínima de 3L por dia</div><div class="tip-desc">Garrafa sempre do lado. Impacta pele, energia, performance e recuperação.</div></div>
+      <div class="tip-card"><div class="tip-title">Evitar álcool nas últimas 3 semanas</div><div class="tip-desc">Prejudica sono, recuperação e aparência da pele. Reserve para brindar no grande dia.</div></div>
+      <div style="font-size:10px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin:16px 0 10px;">Recuperação</div>
+      <div class="tip-card"><div class="tip-title">Sono de 7–8h — inegociável</div><div class="tip-desc">Tela desligada 30 min antes. Quarto frio e escuro. O sono é o maior aliado do treino e do equilíbrio emocional.</div></div>
+      <div class="tip-card"><div class="tip-title">5 min de respiração ao acordar</div><div class="tip-desc">Antes de pegar o celular. Box breathing 4-4-4-4. Regula cortisol e prepara o sistema nervoso.</div></div>
+      <div class="tip-card"><div class="tip-title">Não compensar estresse com treino pesado</div><div class="tip-desc">Em dias de pressão, optar por treino leve ou caminhada. Cortisol alto + treino pesado = prejuízo.</div></div>
+    </div>
+  </div>
+
+  <!-- CAPITAL -->
+  <div class="page" id="page-capital">
+    <div class="page-header">
+      <div class="page-title">Levantamento de capital</div>
+      <div class="page-sub">Ações para fechar a construção e as contas</div>
+    </div>
+    <div class="metrics" style="grid-template-columns:repeat(3,1fr);">
+      <div class="metric"><div class="metric-val c-green" id="cap-done">0</div><div class="metric-lbl">concluídas</div></div>
+      <div class="metric"><div class="metric-val c-amber" id="cap-pend">0</div><div class="metric-lbl">pendentes</div></div>
+      <div class="metric"><div class="metric-val c-gold" id="cap-pct">0%</div><div class="metric-lbl">progresso</div></div>
+    </div>
+    <div class="card"><div class="card-title">Semana 1 — ações imediatas</div><div id="cap1"></div></div>
+    <div class="card"><div class="card-title">Semanas 2 e 3 — médio prazo</div><div id="cap2"></div></div>
+    <div class="card">
+      <div class="card-title">Regra do dia</div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.7;">
+        Todo dia útil: ao menos <span style="color:var(--gold2);font-weight:500;">1 lead de capital</span> ou <span style="color:var(--gold2);font-weight:500;">1 pendência resolvida</span>.<br>
+        5 dias × 7 semanas = <span style="color:var(--green);font-weight:500;">35 avanços</span> até o casamento.
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- BOTTOM NAV (mobile) -->
+<div class="bottom-nav">
+  <div class="bottom-nav-inner">
+    <div class="bn-item active" onclick="go('dash')" id="bnav-dash">
+      <div class="bn-icon">⌂</div><div class="bn-label">Início</div>
+    </div>
+    <div class="bn-item" onclick="go('casamento')" id="bnav-casamento">
+      <div class="bn-icon">◇</div><div class="bn-label">Casamento</div>
+    </div>
+    <div class="bn-item" onclick="go('treinos')" id="bnav-treinos">
+      <div class="bn-icon">◉</div><div class="bn-label">Treinos</div>
+    </div>
+    <div class="bn-item" onclick="go('capital')" id="bnav-capital">
+      <div class="bn-icon">◈</div><div class="bn-label">Capital</div>
+    </div>
+  </div>
+</div>
+
+</div><!-- .app -->
+
+<script>
+// ── DATA ──
+const blocks=[
+  {hour:'05:30–06:45',title:'Treino / academia',tag:'health',lbl:'saúde'},
+  {hour:'07:00–07:30',title:'Revisão + leitura',tag:'personal',lbl:'pessoal'},
+  {hour:'08:00–12:00',title:'Trabalho: capital',tag:'work',lbl:'trabalho'},
+  {hour:'12:00–13:00',title:'Almoço + descanso',tag:'personal',lbl:'pessoal'},
+  {hour:'13:00–17:00',title:'Trabalho: projetos',tag:'work',lbl:'trabalho'},
+  {hour:'17:00–18:00',title:'Casamento: tarefa do dia',tag:'wedding',lbl:'casamento'},
+  {hour:'18:00–19:00',title:'Família / casal',tag:'personal',lbl:'pessoal'},
+  {hour:'21:00–21:30',title:'Revisão + amanhã',tag:'personal',lbl:'pessoal'},
+];
+const prios=[
+  {text:'Contatar 1 lead de capital hoje',area:'trabalho',dot:'dot-red'},
+  {text:'Treino completo sem pular',area:'saúde',dot:'dot-amber'},
+  {text:'Um item do casamento resolvido',area:'casamento',dot:'dot-red'},
+  {text:'30 min de leitura',area:'pessoal',dot:'dot-green'},
+  {text:'Revisão das contas da empresa',area:'trabalho',dot:'dot-amber'},
+];
+const wedWeeks=[
+  {title:'Semana 1 — dias 50 a 44',badge:'urgente',bc:'badge-urgent',items:[
+    {t:'Confirmar local da cerimônia e recepção',c:'log',cl:'logística'},
+    {t:'Confirmar lista de convidados (número final)',c:'pes',cl:'pessoal'},
+    {t:'Fechar contrato com buffet / alimentação',c:'forn',cl:'fornecedor'},
+    {t:'Confirmar fotógrafo e filmmaker',c:'forn',cl:'fornecedor'},
+    {t:'Verificar documentação do cartório',c:'doc',cl:'documentos'},
+    {t:'Confirmar traje do noivo e vestido da noiva',c:'pes',cl:'pessoal'},
+    {t:'Definir padrinhos e madrinhas (lista final)',c:'pes',cl:'pessoal'},
+  ]},
+  {title:'Semana 2 — dias 43 a 37',badge:'importante',bc:'badge-mid',items:[
+    {t:'Enviar convites (físicos ou digitais)',c:'log',cl:'logística'},
+    {t:'Contratar DJ / banda / músico',c:'forn',cl:'fornecedor'},
+    {t:'Confirmar decoração e florista',c:'forn',cl:'fornecedor'},
+    {t:'Definir cardápio com buffet',c:'forn',cl:'fornecedor'},
+    {t:'Agendar prova do vestido / terno',c:'pes',cl:'pessoal'},
+    {t:'Confirmar bolo de casamento',c:'forn',cl:'fornecedor'},
+    {t:'Providenciar alianças (entrega / retirada)',c:'pes',cl:'pessoal'},
+  ]},
+  {title:'Semana 3 — dias 36 a 30',badge:'em andamento',bc:'badge-mid',items:[
+    {t:'Dar entrada na documentação do cartório',c:'doc',cl:'documentos'},
+    {t:'Organizar transporte para os convidados',c:'log',cl:'logística'},
+    {t:'Reservar hotel para os noivos na noite do casamento',c:'log',cl:'logística'},
+    {t:'Definir roteiro da cerimônia com o celebrante',c:'vis',cl:'cerimônia'},
+    {t:'Comprar lembranças e mimos para convidados',c:'log',cl:'logística'},
+    {t:'Planejar lua de mel (passagens, hotel)',c:'pes',cl:'pessoal'},
+  ]},
+  {title:'Semana 4 — dias 29 a 23',badge:'em andamento',bc:'badge-mid',items:[
+    {t:'Confirmar presença de padrinhos e madrinhas',c:'pes',cl:'pessoal'},
+    {t:'Confirmar RSVP dos convidados',c:'log',cl:'logística'},
+    {t:'Definir músicas da cerimônia (entrada, alianças, saída)',c:'vis',cl:'cerimônia'},
+    {t:'Prova final do vestido / terno',c:'pes',cl:'pessoal'},
+    {t:'Verificar necessidade de alvará no local',c:'doc',cl:'documentos'},
+    {t:'Reunião de alinhamento com todos os fornecedores',c:'forn',cl:'fornecedor'},
+  ]},
+  {title:'Semana 5 — dias 22 a 15',badge:'em andamento',bc:'badge-mid',items:[
+    {t:'Preparar lista de músicas para DJ / banda',c:'vis',cl:'cerimônia'},
+    {t:'Comprar presentes para padrinhos e madrinhas',c:'pes',cl:'pessoal'},
+    {t:'Definir cronograma detalhado do dia do casamento',c:'log',cl:'logística'},
+    {t:'Agendar cabeleireiro e maquiagem',c:'pes',cl:'pessoal'},
+    {t:'Confirmar lista de fotos com fotógrafo',c:'vis',cl:'cerimônia'},
+    {t:'Resolver pendências financeiras do casamento',c:'doc',cl:'documentos'},
+  ]},
+  {title:'Semana 6 — dias 14 a 8',badge:'reta final',bc:'badge-urgent',items:[
+    {t:'Enviar cronograma a todos os fornecedores',c:'log',cl:'logística'},
+    {t:'Confirmar número final de convidados com buffet',c:'forn',cl:'fornecedor'},
+    {t:'Testar maquiagem e penteado (ensaio)',c:'pes',cl:'pessoal'},
+    {t:'Preparar envelopes e recados especiais',c:'vis',cl:'cerimônia'},
+    {t:'Organizar malas para lua de mel',c:'pes',cl:'pessoal'},
+    {t:'Ensaio da cerimônia com padrinhos',c:'vis',cl:'cerimônia'},
+  ]},
+  {title:'Última semana — dias 7 a 1',badge:'urgente',bc:'badge-urgent',items:[
+    {t:'Retirar vestido / terno da loja',c:'pes',cl:'pessoal'},
+    {t:'Preparar kit emergência (agulha, fita, remédio, bateria...)',c:'log',cl:'logística'},
+    {t:'Pagar saldo final de todos os fornecedores',c:'doc',cl:'documentos'},
+    {t:'Descansar, dormir bem, se hidratar',c:'pes',cl:'pessoal'},
+    {t:'Curtir o momento com quem você ama',c:'pes',cl:'pessoal'},
+  ]},
+];
+const cap1=[
+  {t:'Listar todos os ativos disponíveis como garantia',b:'primeiro passo',bc:'badge-urgent'},
+  {t:'Pesquisar linhas de crédito PJ e financiamento de construção',b:'financiamento',bc:'badge-urgent'},
+  {t:'Mapear todas as fontes possíveis de capital',b:'estratégia',bc:'badge-mid'},
+  {t:'Renegociar prazos das contas pendentes mais urgentes',b:'gestão',bc:'badge-mid'},
+];
+const cap2=[
+  {t:'Preparar pitch para investidores ou financiadores',b:'estratégia',bc:'badge-mid'},
+  {t:'Contatar rede de contatos para possíveis sócios ou aportes',b:'network',bc:'badge-mid'},
+  {t:'Avaliar antecipação de recebíveis como capital rápido',b:'capital rápido',bc:'badge-ok'},
+  {t:'Levantar todas as pendências com valores e vencimentos',b:'gestão',bc:'badge-ok'},
+];
+
+// ── STATE ──
+function ld(k,d){try{const v=localStorage.getItem(k);return v!=null?JSON.parse(v):d;}catch{return d;}}
+function sv(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch{}}
+
+let bSt=ld('bSt',blocks.map(()=>false));
+let pSt=ld('pSt',prios.map(()=>false));
+let wSt=ld('wSt',wedWeeks.map(w=>w.items.map(()=>false)));
+let c1St=ld('c1St',cap1.map(()=>false));
+let c2St=ld('c2St',cap2.map(()=>false));
+
+// ── NAV ──
+const pages=['dash','casamento','treinos','capital'];
+function go(p){
+  pages.forEach(x=>{
+    document.getElementById('page-'+x).classList.toggle('active',x===p);
+    const s=document.getElementById('snav-'+x);
+    const b=document.getElementById('bnav-'+x);
+    if(s)s.classList.toggle('active',x===p);
+    if(b)b.classList.toggle('active',x===p);
+  });
+  document.querySelector('.main').scrollTop=0;
+}
+
+// ── DATE ──
+function setupDate(){
+  const t=new Date();
+  const w=new Date(t);w.setDate(t.getDate()+50);
+  document.getElementById('dash-date').textContent=
+    t.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'})+
+    ' · casamento em '+w.toLocaleDateString('pt-BR',{day:'numeric',month:'long',year:'numeric'});
+}
+
+// ── METRICS ──
+function updateMetrics(){
+  const wDone=wSt.flat().filter(Boolean).length;
+  const wTotal=wedWeeks.reduce((a,w)=>a+w.items.length,0);
+  const cDone=c1St.filter(Boolean).length+c2St.filter(Boolean).length;
+  const cTotal=cap1.length+cap2.length;
+  document.getElementById('m-wed').textContent=wDone;
+  document.getElementById('m-treino').textContent=bSt[0]?1:0;
+  document.getElementById('m-cap').textContent=cDone;
+  document.getElementById('wed-done').textContent=wDone;
+  document.getElementById('wed-pend').textContent=wTotal-wDone;
+  document.getElementById('wed-pct').textContent=Math.round(wDone/wTotal*100)+'%';
+  document.getElementById('cap-done').textContent=cDone;
+  document.getElementById('cap-pend').textContent=cTotal-cDone;
+  document.getElementById('cap-pct').textContent=Math.round(cDone/cTotal*100)+'%';
+  const tot=blocks.length+prios.length+wTotal+cTotal;
+  const done=bSt.filter(Boolean).length+pSt.filter(Boolean).length+wDone+cDone;
+  const pct=Math.round(done/tot*100);
+  document.getElementById('side-pct').textContent=pct+'%';
+  document.getElementById('side-fill').style.width=pct+'%';
+}
+
+// ── BLOCKS ──
+function renderBlocks(){
+  const c=document.getElementById('blocks-grid');c.innerHTML='';
+  blocks.forEach((b,i)=>{
+    const d=document.createElement('div');
+    d.className='block-item'+(bSt[i]?' done':'');
+    d.innerHTML=`<div class="block-check">${bSt[i]?'✓':''}</div><div><div class="block-hour">${b.hour}</div><div class="block-title">${b.title}</div><span class="block-tag tag-${b.tag}">${b.lbl}</span></div>`;
+    d.onclick=()=>{bSt[i]=!bSt[i];sv('bSt',bSt);renderBlocks();updateMetrics();};
+    c.appendChild(d);
+  });
+}
+
+// ── PRIOS ──
+function renderPrios(){
+  const c=document.getElementById('prio-list');c.innerHTML='';
+  prios.forEach((p,i)=>{
+    const d=document.createElement('div');
+    d.className='prio-item'+(pSt[i]?' done':'');
+    d.innerHTML=`<div class="prio-dot ${p.dot}"></div><span class="prio-text">${p.text}</span><span class="prio-area">${p.area}</span>`;
+    d.onclick=()=>{pSt[i]=!pSt[i];sv('pSt',pSt);renderPrios();updateMetrics();};
+    c.appendChild(d);
+  });
+}
+
+// ── WEDDING ──
+function renderWed(){
+  const c=document.getElementById('wed-weeks');c.innerHTML='';
+  wedWeeks.forEach((wk,wi)=>{
+    const done=wSt[wi].filter(Boolean).length;
+    const tot=wk.items.length;
+    const pct=Math.round(done/tot*100);
+    const g=document.createElement('div');
+    g.className='week-group';
+    g.innerHTML=`<div class="week-hdr" onclick="this.parentElement.classList.toggle('collapsed')"><span class="week-name">${wk.title}</span><div style="display:flex;align-items:center;gap:7px;"><span class="week-badge ${wk.bc}">${done}/${tot}</span><span style="font-size:11px;color:var(--text3);">▾</span></div></div><div class="week-prog"><div class="week-prog-fill" style="width:${pct}%"></div></div><div class="week-items" id="wi${wi}"></div>`;
+    c.appendChild(g);
+    const ic=document.getElementById('wi'+wi);
+    wk.items.forEach((item,ii)=>{
+      const d=document.createElement('div');
+      d.className='chk-item'+(wSt[wi][ii]?' done':'');
+      d.innerHTML=`<div class="chk-box">${wSt[wi][ii]?'✓':''}</div><span class="chk-text">${item.t}</span><span class="chk-cat cat-${item.c}">${item.cl}</span>`;
+      d.onclick=()=>{wSt[wi][ii]=!wSt[wi][ii];sv('wSt',wSt);renderWed();updateMetrics();};
+      ic.appendChild(d);
+    });
+  });
+}
+
+// ── CAPITAL ──
+function renderCap(cid,items,st,key){
+  const c=document.getElementById(cid);c.innerHTML='';
+  items.forEach((item,i)=>{
+    const d=document.createElement('div');
+    d.className='cap-item'+(st[i]?' done':'');
+    d.innerHTML=`<div class="chk-box" style="flex-shrink:0;margin-top:1px;">${st[i]?'✓':''}</div><span class="cap-text">${item.t}</span><span class="cap-badge ${item.bc}">${item.b}</span>`;
+    d.onclick=()=>{st[i]=!st[i];sv(key,st);renderCap(cid,items,st,key);updateMetrics();};
+    c.appendChild(d);
+  });
+}
+
+// ── TREINO TABS ──
+function switchT(n){
+  ['semana','fases','nutri'].forEach((x,i)=>{
+    document.getElementById('tv-'+x).classList.toggle('active',x===n);
+    document.querySelectorAll('.ttab')[i].classList.toggle('active',x===n);
+  });
+}
+
+// ── INIT ──
+setupDate();
+renderBlocks();
+renderPrios();
+renderWed();
+renderCap('cap1',cap1,c1St,'c1St');
+renderCap('cap2',cap2,c2St,'c2St');
+updateMetrics();
+</script>
+</body>
+</html>
